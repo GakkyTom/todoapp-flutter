@@ -19,8 +19,15 @@ class MyTodoApp extends StatelessWidget {
   }
 }
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
   const TodoListPage({Key? key}) : super(key: key);
+
+  @override
+  _TodoListPageState createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+  List<String> todoList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -28,35 +35,28 @@ class TodoListPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('All List'),
       ),
-      body: ListView(
-        children: const <Widget>[
-          Card(
+      body: ListView.builder(
+        itemCount: todoList.length,
+        itemBuilder: (context, index) {
+          return Card(
             child: ListTile(
-              title: Text('Buy Carrot'),
+              title: Text(todoList[index]),
             ),
-          ),
-          Card(
-            child: ListTile(
-              title: Text('Buy Chicken'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              title: Text('Buy Egg'),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              title: Text('Buy Cow'),
-            ),
-          ),
-        ],
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-            return const TodoAddPage();
-          }));
+        onPressed: () async {
+          final newListText = await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) {
+              return const TodoAddPage();
+            }),
+          );
+          if (newListText != null) {
+            setState(() {
+              todoList.add(newListText);
+            });
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -64,8 +64,15 @@ class TodoListPage extends StatelessWidget {
   }
 }
 
-class TodoAddPage extends StatelessWidget {
+class TodoAddPage extends StatefulWidget {
   const TodoAddPage({Key? key}) : super(key: key);
+
+  @override
+  _TodoAddPageState createState() => _TodoAddPageState();
+}
+
+class _TodoAddPageState extends State<TodoAddPage> {
+  String _text = '';
 
   @override
   Widget build(BuildContext context) {
@@ -78,12 +85,22 @@ class TodoAddPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const TextField(),
+            Text(_text, style: const TextStyle(color: Colors.blue)),
+            const SizedBox(height: 8),
+            TextField(
+              onChanged: (String value) {
+                setState(() {
+                  _text = value;
+                });
+              },
+            ),
             const SizedBox(height: 8),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).pop(_text);
+                },
                 child: const Text('Add Item',
                     style: TextStyle(color: Colors.white)),
               ),
